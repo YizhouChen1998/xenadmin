@@ -39,13 +39,18 @@ namespace XenAdmin.SettingsPanels
             this.ServiceStatusPicture = new System.Windows.Forms.PictureBox();
             this.ServiceStatusLabel = new System.Windows.Forms.Label();
             this.DebugLogCheckBox = new System.Windows.Forms.CheckBox();
+            this.SwitchConfigLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+            this.SwitchConfigListBox = new System.Windows.Forms.ListBox();
+            this.AddTrapButton = new System.Windows.Forms.Button();
+            this.TestTrapButton = new System.Windows.Forms.Button();
+            this.DeleteTrapButton = new System.Windows.Forms.Button();
+            this.FlexSettingGroupBox = new System.Windows.Forms.GroupBox();
+            this.BasicConfigLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.SupportV2cCheckBox = new System.Windows.Forms.CheckBox();
-            this.SnmpV2cGroupBox = new System.Windows.Forms.GroupBox();
             this.SnmpV2cPanel = new System.Windows.Forms.TableLayoutPanel();
             this.CommunityLabel = new System.Windows.Forms.Label();
             this.CommunityTextBox = new System.Windows.Forms.TextBox();
             this.SupportV3CheckBox = new System.Windows.Forms.CheckBox();
-            this.SnmpV3GroupBox = new System.Windows.Forms.GroupBox();
             this.SnmpV3Panel = new System.Windows.Forms.TableLayoutPanel();
             this.UserNameLabel = new System.Windows.Forms.Label();
             this.UserNameTextBox = new System.Windows.Forms.TextBox();
@@ -65,9 +70,10 @@ namespace XenAdmin.SettingsPanels
             this.SnmpTableLayoutPanel.SuspendLayout();
             this.SnmpServiceStatusPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ServiceStatusPicture)).BeginInit();
-            this.SnmpV2cGroupBox.SuspendLayout();
+            this.SwitchConfigLayoutPanel.SuspendLayout();
+            this.FlexSettingGroupBox.SuspendLayout();
+            this.BasicConfigLayoutPanel.SuspendLayout();
             this.SnmpV2cPanel.SuspendLayout();
-            this.SnmpV3GroupBox.SuspendLayout();
             this.SnmpV3Panel.SuspendLayout();
             this.RetrieveSnmpPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.RetrieveSnmpPicture)).BeginInit();
@@ -80,11 +86,9 @@ namespace XenAdmin.SettingsPanels
             this.SnmpTableLayoutPanel.Controls.Add(this.DescLabel, 0, 0);
             this.SnmpTableLayoutPanel.Controls.Add(this.SnmpServiceStatusPanel, 0, 1);
             this.SnmpTableLayoutPanel.Controls.Add(this.DebugLogCheckBox, 0, 2);
-            this.SnmpTableLayoutPanel.Controls.Add(this.SupportV2cCheckBox, 0, 3);
-            this.SnmpTableLayoutPanel.Controls.Add(this.SnmpV2cGroupBox, 0, 4);
-            this.SnmpTableLayoutPanel.Controls.Add(this.SupportV3CheckBox, 0, 5);
-            this.SnmpTableLayoutPanel.Controls.Add(this.SnmpV3GroupBox, 0, 6);
-            this.SnmpTableLayoutPanel.Controls.Add(this.RetrieveSnmpPanel, 0, 7);
+            this.SnmpTableLayoutPanel.Controls.Add(this.SwitchConfigLayoutPanel, 0, 3);
+            this.SnmpTableLayoutPanel.Controls.Add(this.FlexSettingGroupBox, 0, 4);
+            this.SnmpTableLayoutPanel.Controls.Add(this.RetrieveSnmpPanel, 0, 5);
             this.SnmpTableLayoutPanel.Name = "SnmpTableLayoutPanel";
             // 
             // DescLabel
@@ -122,26 +126,68 @@ namespace XenAdmin.SettingsPanels
             // DebugLogCheckBox
             // 
             resources.ApplyResources(this.DebugLogCheckBox, "DebugLogCheckBox");
-            this.SnmpTableLayoutPanel.SetColumnSpan(this.DebugLogCheckBox, 2);
             this.DebugLogCheckBox.Name = "DebugLogCheckBox";
             this.DebugLogCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // SwitchConfigLayoutPanel
+            // 
+            resources.ApplyResources(this.SwitchConfigLayoutPanel, "SwitchConfigLayoutPanel");
+            this.SwitchConfigLayoutPanel.Controls.Add(this.SwitchConfigListBox, 0, 0);
+            this.SwitchConfigLayoutPanel.Controls.Add(this.AddTrapButton, 1, 0);
+            this.SwitchConfigLayoutPanel.Controls.Add(this.TestTrapButton, 1, 1);
+            this.SwitchConfigLayoutPanel.Controls.Add(this.DeleteTrapButton, 1, 2);
+            this.SwitchConfigLayoutPanel.Name = "SwitchConfigLayoutPanel";
+            // 
+            // SwitchConfigListBox
+            // 
+            resources.ApplyResources(this.SwitchConfigListBox, "SwitchConfigListBox");
+            this.SwitchConfigListBox.Items.AddRange(new object[] {
+            resources.GetString("SwitchConfigListBox.Items")});
+            this.SwitchConfigListBox.Name = "SwitchConfigListBox";
+            this.SwitchConfigLayoutPanel.SetRowSpan(this.SwitchConfigListBox, 3);
+            this.SwitchConfigListBox.SelectedIndexChanged += new System.EventHandler(this.ListBox_SelectedIndexChanged);
+            // 
+            // AddTrapButton
+            // 
+            resources.ApplyResources(this.AddTrapButton, "AddTrapButton");
+            this.AddTrapButton.Name = "AddTrapButton";
+            this.AddTrapButton.Click += new System.EventHandler(this.AddTrapButton_Click);
+            // 
+            // TestTrapButton
+            // 
+            resources.ApplyResources(this.TestTrapButton, "TestTrapButton");
+            this.TestTrapButton.Name = "TestTrapButton";
+            // 
+            // DeleteTrapButton
+            // 
+            resources.ApplyResources(this.DeleteTrapButton, "DeleteTrapButton");
+            this.DeleteTrapButton.Name = "DeleteTrapButton";
+            this.DeleteTrapButton.Click += new System.EventHandler(this.DeleteTrapButton_Click);
+            // 
+            // FlexSettingGroupBox
+            // 
+            resources.ApplyResources(this.FlexSettingGroupBox, "FlexSettingGroupBox");
+            this.FlexSettingGroupBox.Controls.Add(this.BasicConfigLayoutPanel);
+            this.FlexSettingGroupBox.Name = "FlexSettingGroupBox";
+            this.FlexSettingGroupBox.TabStop = false;
+            // 
+            // BasicConfigLayoutPanel
+            // 
+            resources.ApplyResources(this.BasicConfigLayoutPanel, "BasicConfigLayoutPanel");
+            this.BasicConfigLayoutPanel.Controls.Add(this.SupportV2cCheckBox, 0, 0);
+            this.BasicConfigLayoutPanel.Controls.Add(this.SnmpV2cPanel, 0, 1);
+            this.BasicConfigLayoutPanel.Controls.Add(this.SupportV3CheckBox, 0, 2);
+            this.BasicConfigLayoutPanel.Controls.Add(this.SnmpV3Panel, 0, 3);
+            this.BasicConfigLayoutPanel.Name = "BasicConfigLayoutPanel";
             // 
             // SupportV2cCheckBox
             // 
             resources.ApplyResources(this.SupportV2cCheckBox, "SupportV2cCheckBox");
             this.SupportV2cCheckBox.Checked = true;
             this.SupportV2cCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.SnmpTableLayoutPanel.SetColumnSpan(this.SupportV2cCheckBox, 2);
             this.SupportV2cCheckBox.Name = "SupportV2cCheckBox";
             this.SupportV2cCheckBox.UseVisualStyleBackColor = true;
             this.SupportV2cCheckBox.CheckedChanged += new System.EventHandler(this.SupportV2CheckBox_CheckedChanged);
-            // 
-            // SnmpV2cGroupBox
-            // 
-            resources.ApplyResources(this.SnmpV2cGroupBox, "SnmpV2cGroupBox");
-            this.SnmpV2cGroupBox.Controls.Add(this.SnmpV2cPanel);
-            this.SnmpV2cGroupBox.Name = "SnmpV2cGroupBox";
-            this.SnmpV2cGroupBox.TabStop = false;
             // 
             // SnmpV2cPanel
             // 
@@ -163,31 +209,23 @@ namespace XenAdmin.SettingsPanels
             // SupportV3CheckBox
             // 
             resources.ApplyResources(this.SupportV3CheckBox, "SupportV3CheckBox");
-            this.SnmpTableLayoutPanel.SetColumnSpan(this.SupportV3CheckBox, 2);
             this.SupportV3CheckBox.Name = "SupportV3CheckBox";
             this.SupportV3CheckBox.UseVisualStyleBackColor = true;
             this.SupportV3CheckBox.CheckedChanged += new System.EventHandler(this.SupportV3CheckBox_CheckedChanged);
             // 
-            // SnmpV3GroupBox
-            // 
-            resources.ApplyResources(this.SnmpV3GroupBox, "SnmpV3GroupBox");
-            this.SnmpV3GroupBox.Controls.Add(this.SnmpV3Panel);
-            this.SnmpV3GroupBox.Name = "SnmpV3GroupBox";
-            this.SnmpV3GroupBox.TabStop = false;
-            // 
             // SnmpV3Panel
             // 
             resources.ApplyResources(this.SnmpV3Panel, "SnmpV3Panel");
-            this.SnmpV3Panel.Controls.Add(this.UserNameLabel, 0, 1);
-            this.SnmpV3Panel.Controls.Add(this.UserNameTextBox, 1, 1);
-            this.SnmpV3Panel.Controls.Add(this.AuthenticationPasswordLabel, 0, 2);
-            this.SnmpV3Panel.Controls.Add(this.AuthenticationPasswordLabelTextBox, 1, 2);
-            this.SnmpV3Panel.Controls.Add(this.AuthenticationProtocolLabel, 0, 3);
-            this.SnmpV3Panel.Controls.Add(this.AuthenticationProtocolComboBox, 1, 3);
-            this.SnmpV3Panel.Controls.Add(this.PrivacyPasswordLabel, 0, 4);
-            this.SnmpV3Panel.Controls.Add(this.PrivacyPasswordTextBox, 1, 4);
-            this.SnmpV3Panel.Controls.Add(this.PrivacyProtocolLabel, 0, 5);
-            this.SnmpV3Panel.Controls.Add(this.PrivacyProtocolComboBox, 1, 5);
+            this.SnmpV3Panel.Controls.Add(this.UserNameLabel, 0, 0);
+            this.SnmpV3Panel.Controls.Add(this.UserNameTextBox, 1, 0);
+            this.SnmpV3Panel.Controls.Add(this.AuthenticationPasswordLabel, 0, 1);
+            this.SnmpV3Panel.Controls.Add(this.AuthenticationPasswordLabelTextBox, 1, 1);
+            this.SnmpV3Panel.Controls.Add(this.AuthenticationProtocolLabel, 0, 2);
+            this.SnmpV3Panel.Controls.Add(this.AuthenticationProtocolComboBox, 1, 2);
+            this.SnmpV3Panel.Controls.Add(this.PrivacyPasswordLabel, 0, 3);
+            this.SnmpV3Panel.Controls.Add(this.PrivacyPasswordTextBox, 1, 3);
+            this.SnmpV3Panel.Controls.Add(this.PrivacyProtocolLabel, 0, 4);
+            this.SnmpV3Panel.Controls.Add(this.PrivacyProtocolComboBox, 1, 4);
             this.SnmpV3Panel.Name = "SnmpV3Panel";
             // 
             // UserNameLabel
@@ -297,12 +335,13 @@ namespace XenAdmin.SettingsPanels
             this.SnmpServiceStatusPanel.ResumeLayout(false);
             this.SnmpServiceStatusPanel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ServiceStatusPicture)).EndInit();
-            this.SnmpV2cGroupBox.ResumeLayout(false);
-            this.SnmpV2cGroupBox.PerformLayout();
+            this.SwitchConfigLayoutPanel.ResumeLayout(false);
+            this.FlexSettingGroupBox.ResumeLayout(false);
+            this.FlexSettingGroupBox.PerformLayout();
+            this.BasicConfigLayoutPanel.ResumeLayout(false);
+            this.BasicConfigLayoutPanel.PerformLayout();
             this.SnmpV2cPanel.ResumeLayout(false);
             this.SnmpV2cPanel.PerformLayout();
-            this.SnmpV3GroupBox.ResumeLayout(false);
-            this.SnmpV3GroupBox.PerformLayout();
             this.SnmpV3Panel.ResumeLayout(false);
             this.SnmpV3Panel.PerformLayout();
             this.RetrieveSnmpPanel.ResumeLayout(false);
@@ -311,38 +350,41 @@ namespace XenAdmin.SettingsPanels
             this.GeneralConfigureGroupBox.ResumeLayout(false);
             this.GeneralConfigureGroupBox.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
         private TableLayoutPanel SnmpTableLayoutPanel;
-
-        private Label DescLabel;
-
         private GroupBox GeneralConfigureGroupBox;
         private TableLayoutPanel GeneralConfigTableLayoutPanel;
-
-        private CheckBox EnableSnmpCheckBox;
-        private CheckBox DebugLogCheckBox;
-        private GroupBox SnmpV2cGroupBox;
-        private TableLayoutPanel SnmpV2cPanel;
-        private GroupBox SnmpV3GroupBox;
-        private TableLayoutPanel SnmpV3Panel;
-        private CheckBox SupportV3CheckBox;
-        private TextBox PrivacyPasswordTextBox;
-        private TextBox UserNameTextBox;
-        private Label PrivacyPasswordLabel;
-        private Label UserNameLabel;
-        private TextBox AuthenticationPasswordLabelTextBox;
-        private Label AuthenticationPasswordLabel;
-        private Label AuthenticationProtocolLabel;
-        private ComboBox AuthenticationProtocolComboBox;
+        private Label DescLabel;
         private TableLayoutPanel SnmpServiceStatusPanel;
+        private CheckBox EnableSnmpCheckBox;
         private PictureBox ServiceStatusPicture;
         private Label ServiceStatusLabel;
+        private CheckBox DebugLogCheckBox;
+        private TableLayoutPanel SwitchConfigLayoutPanel;
+        private ListBox SwitchConfigListBox;
+        private Button AddTrapButton;
+        private Button TestTrapButton;
+        private Button DeleteTrapButton;
+        private GroupBox FlexSettingGroupBox;
+        private TableLayoutPanel BasicConfigLayoutPanel;
         private CheckBox SupportV2cCheckBox;
+        private TableLayoutPanel SnmpV2cPanel;
         private Label CommunityLabel;
         private TextBox CommunityTextBox;
+        private CheckBox SupportV3CheckBox;
+        private TableLayoutPanel SnmpV3Panel;
+        private Label UserNameLabel;
+        private TextBox UserNameTextBox;
+        private Label AuthenticationPasswordLabel;
+        private TextBox AuthenticationPasswordLabelTextBox;
+        private Label AuthenticationProtocolLabel;
+        private ComboBox AuthenticationProtocolComboBox;
+        private Label PrivacyPasswordLabel;
+        private TextBox PrivacyPasswordTextBox;
         private Label PrivacyProtocolLabel;
         private ComboBox PrivacyProtocolComboBox;
         private TableLayoutPanel RetrieveSnmpPanel;

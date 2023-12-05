@@ -425,6 +425,8 @@ namespace XenAdmin.Dialogs
 
             foreach (IEditPage editPage in verticalTabs.Items)
             {
+                editPage.HideLocalValidationMessages();
+
                 if (!editPage.HasChanged)
                     continue;
 

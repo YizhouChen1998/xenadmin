@@ -29,13 +29,19 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using XenAdmin.Actions;
 using XenAdmin.Actions.SNMP;
 using XenAdmin.Core;
+using XenAdmin.Properties;
 using XenAPI;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
+using CheckBox = System.Windows.Forms.CheckBox;
 
 namespace XenAdmin.SettingsPanels
 {
@@ -53,9 +59,16 @@ namespace XenAdmin.SettingsPanels
         private static readonly Regex RegexCommon = new Regex(@"^[a-zA-Z0-9-.\#@=:_]{6,32}$");
         private static readonly Regex RegexEncryptTextBox = new Regex(@"^([a-zA-Z0-9-.\#@=:_]{8,32}|[*]{8})$");
         private bool _encryptTextBoxFlag;
+        private readonly List<int> _trapIndexList = new List<int>();
         private IXenObject _clone;
         private SnmpConfiguration _snmpConfiguration = new SnmpConfiguration();
         private readonly SnmpConfiguration _snmpCurrentConfiguration = new SnmpConfiguration();
+
+        public SnmpEditPage()
+        {
+            InitializeComponent();
+            this.Load += SnmpEditPage_Load;
+        }
 
         public bool HasChanged
         {
@@ -125,11 +138,6 @@ namespace XenAdmin.SettingsPanels
             }
         }
 
-        public SnmpEditPage()
-        {
-            InitializeComponent();
-        }
-
         public void Cleanup()
         {
             _invalidParamToolTip.Dispose();
@@ -180,6 +188,7 @@ namespace XenAdmin.SettingsPanels
             {
                 _encryptTextBoxFlag = true;
                 EnableSnmpCheckBox.Enabled = true;
+                AddTrapButton.Enabled = true;
                 RetrieveSnmpPanel.Visible = false;
                 ServiceStatusPicture.Visible = ServiceStatusLabel.Visible = 
                     !_snmpConfiguration.ServiceStatus && _snmpConfiguration.IsSnmpEnabled;
@@ -195,8 +204,8 @@ namespace XenAdmin.SettingsPanels
                 PrivacyProtocolComboBox.SelectedItem = _snmpConfiguration.PrivacyProtocol;
                 if (EnableSnmpCheckBox.Checked)
                 {
-                    SnmpV2cGroupBox.Enabled = SupportV2cCheckBox.Checked;
-                    SnmpV3GroupBox.Enabled = SupportV3CheckBox.Checked;
+                    SnmpV2cPanel.Enabled = SupportV2cCheckBox.Checked;
+                    SnmpV3Panel.Enabled = SupportV3CheckBox.Checked;
                 }
                 _encryptTextBoxFlag = false;
             }
@@ -224,16 +233,42 @@ namespace XenAdmin.SettingsPanels
 
         private void UpdateAllComponents(bool status)
         {
-            EnableSnmpCheckBox.Enabled = DebugLogCheckBox.Enabled = SupportV2cCheckBox.Enabled = SnmpV2cGroupBox.Enabled = SupportV3CheckBox.Enabled = SnmpV3GroupBox.Enabled = status;
+            EnableSnmpCheckBox.Enabled = DebugLogCheckBox.Enabled = AddTrapButton.Enabled = TestTrapButton.Enabled = DeleteTrapButton.Enabled = SupportV2cCheckBox.Enabled = SnmpV2cPanel.Enabled = SupportV3CheckBox.Enabled = SnmpV3Panel.Enabled = status;
         }
 
         private void EnableSNMPCheckBox_CheckedChanged(object sender, EventArgs e)
         {
+            // agent
             DebugLogCheckBox.Enabled = EnableSnmpCheckBox.Checked;
             SupportV2cCheckBox.Enabled = EnableSnmpCheckBox.Checked;
-            SnmpV2cGroupBox.Enabled = EnableSnmpCheckBox.Checked && SupportV2cCheckBox.Checked;
+            SnmpV2cPanel.Enabled = EnableSnmpCheckBox.Checked && SupportV2cCheckBox.Checked;
             SupportV3CheckBox.Enabled = EnableSnmpCheckBox.Checked;
-            SnmpV3GroupBox.Enabled = EnableSnmpCheckBox.Checked && SupportV3CheckBox.Checked;
+            SnmpV3Panel.Enabled = EnableSnmpCheckBox.Checked && SupportV3CheckBox.Checked;
+            // traps
+            foreach (TableLayoutPanel panel in FlexSettingGroupBox.Controls)
+            {
+                int index = FlexSettingGroupBox.Controls.IndexOf(panel);
+                if (index != 0)
+                {
+                    int currentTrapIndex = Convert.ToInt32(panel.Name[panel.Name.Length - 1].ToString());
+                    Label nmsAddressLabel = (Label)panel.Controls.Find($"NMSAddressLabel{currentTrapIndex}", true).FirstOrDefault();
+                    TextBox nmsAddressTextBox = (TextBox)panel.Controls.Find($"NMSAddressTextBox{currentTrapIndex}", true).FirstOrDefault();
+                    Label nmsPortLabel = (Label)panel.Controls.Find($"NMSPortLabel{currentTrapIndex}", true).FirstOrDefault();
+                    TextBox nmsPortTextBox = (TextBox)panel.Controls.Find($"NMSPortTextBox{currentTrapIndex}", true).FirstOrDefault();
+                    CheckBox trapSupportV2CCheckBox = (CheckBox)panel.Controls.Find($"TrapSupportV2CCheckBox{currentTrapIndex}", true).FirstOrDefault();
+                    TableLayoutPanel trapSnmpV2CPanel = (TableLayoutPanel)panel.Controls.Find($"TrapSnmpV2CPanel{currentTrapIndex}", true).FirstOrDefault();
+                    CheckBox trapSupportV3CheckBox = (CheckBox)panel.Controls.Find($"TrapSupportV3CheckBox{currentTrapIndex}", true).FirstOrDefault();
+                    TableLayoutPanel trapSnmpV3Panel = (TableLayoutPanel)panel.Controls.Find($"TrapSnmpV3Panel{currentTrapIndex}", true).FirstOrDefault();
+                    if (nmsAddressLabel != null) nmsAddressLabel.Enabled = EnableSnmpCheckBox.Checked;
+                    if (nmsAddressTextBox != null) nmsAddressTextBox.Enabled = EnableSnmpCheckBox.Checked;
+                    if (nmsPortLabel != null) nmsPortLabel.Enabled = EnableSnmpCheckBox.Checked;
+                    if (nmsPortTextBox != null) nmsPortTextBox.Enabled = EnableSnmpCheckBox.Checked;
+                    if (trapSupportV2CCheckBox != null) trapSupportV2CCheckBox.Enabled = EnableSnmpCheckBox.Checked;
+                    if (trapSnmpV2CPanel != null && trapSupportV2CCheckBox != null) trapSnmpV2CPanel.Enabled = EnableSnmpCheckBox.Checked && trapSupportV2CCheckBox.Checked;
+                    if (trapSupportV3CheckBox != null) trapSupportV3CheckBox.Enabled = EnableSnmpCheckBox.Checked;
+                    if (trapSnmpV3Panel != null && trapSupportV3CheckBox != null) trapSnmpV3Panel.Enabled = EnableSnmpCheckBox.Checked && trapSupportV3CheckBox.Checked;
+                };
+            }
         }
 
         private void EncryptTextBox_TextChanged(object sender, EventArgs e)
@@ -256,6 +291,13 @@ namespace XenAdmin.SettingsPanels
             }
         }
 
+        public void SnmpEditPage_Load(object sender, EventArgs e)
+        {
+            SwitchConfigListBox.SelectedIndex = 0;
+            AuthenticationProtocolComboBox.SelectedIndex = 0;
+            PrivacyProtocolComboBox.SelectedIndex = 0;
+        }
+
         private void V3Block_Changed(object sender, EventArgs e)
         {
             if (_encryptTextBoxFlag) return;
@@ -268,12 +310,289 @@ namespace XenAdmin.SettingsPanels
 
         private void SupportV2CheckBox_CheckedChanged(object sender, EventArgs e)
         {
-            SnmpV2cGroupBox.Enabled = SupportV2cCheckBox.Checked;
+            SnmpV2cPanel.Enabled = SupportV2cCheckBox.Checked;
         }
 
         private void SupportV3CheckBox_CheckedChanged(object sender, EventArgs e)
         {
-            SnmpV3GroupBox.Enabled = SupportV3CheckBox.Checked;
+            SnmpV3Panel.Enabled = SupportV3CheckBox.Checked;
+        }
+
+        private void ListBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            int selectedIndex = SwitchConfigListBox.SelectedIndex;
+            // change button status
+            TestTrapButton.Enabled = DeleteTrapButton.Enabled = selectedIndex != 0;
+            // change setting GroupBox text
+            FlexSettingGroupBox.Text = selectedIndex == 0 ? "XenServer SNMP agent settings" : "Trap NMS server settings";
+            // change to corresponding setting panel
+            foreach (TableLayoutPanel panel in FlexSettingGroupBox.Controls)
+            {
+                int index = FlexSettingGroupBox.Controls.IndexOf(panel);
+                panel.Visible = selectedIndex == index;
+            }
+        }
+
+        private void AddTrapButton_Click(object sender, EventArgs e)
+        {
+            int trapIndex = 1;
+            if (_trapIndexList.Count > 0)
+            {
+                int index = 0;
+                while (index < _trapIndexList.Count && _trapIndexList.Contains(trapIndex))
+                {
+                    trapIndex++;
+                    index++;
+                }
+
+                _trapIndexList.Add(trapIndex);
+            }
+            else
+            {
+                _trapIndexList.Add(trapIndex);
+            }
+            SwitchConfigListBox.Items.Add("New trap");
+            AddTrapButton.Enabled = SwitchConfigListBox.Items.Count == 1;
+            InitNewTrapConfigPanel(trapIndex);
+        }
+
+        private void DeleteTrapButton_Click(object sender, EventArgs e)
+        {
+            int selectedIndex = SwitchConfigListBox.SelectedIndex;
+            SwitchConfigListBox.Items.RemoveAt(selectedIndex);
+            _trapIndexList.RemoveAt(selectedIndex - 1);
+            AddTrapButton.Enabled = SwitchConfigListBox.Items.Count == 1;
+            FlexSettingGroupBox.Controls.RemoveAt(selectedIndex);
+            SwitchConfigListBox.SelectedIndex = selectedIndex - 1;
+        }
+
+        private void Textbox_NMSIpLostFocus(object sender, EventArgs e)
+        {
+            TextBox triggerTextBox = (TextBox)sender;
+            int currentTrapIndex = Convert.ToInt32(triggerTextBox.Name[triggerTextBox.Name.Length - 1].ToString());
+            TableLayoutPanel panel = (TableLayoutPanel)FlexSettingGroupBox.Controls[$"TrapConfigLayoutPanel{currentTrapIndex}"];
+            TextBox addressTextBox = (TextBox)panel.Controls[$"NMSAddressTextBox{currentTrapIndex}"];
+            TextBox portTextBox = (TextBox)panel.Controls[$"NMSPortTextBox{currentTrapIndex}"];
+            string address = addressTextBox.Text;
+            string port = portTextBox.Text;
+            int selectedIndex = SwitchConfigListBox.SelectedIndex;
+            // sometimes selectedIndex is -1, which will cause error 
+            if (selectedIndex == -1)
+            {
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(address) && string.IsNullOrWhiteSpace(port))
+            {
+                SwitchConfigListBox.Items[selectedIndex] = "New trap";
+            }
+            else
+            {
+                SwitchConfigListBox.Items[selectedIndex] = $"{address}:{port}";
+            }
+        }
+
+        private void TrapV2CCheckbox_CheckedChanged(CheckBox trapV2CheckBox, CheckBox trapV3CheckBox, TableLayoutPanel trapSnmpV2Panel)
+        {
+            if (trapV2CheckBox.Checked)
+            {
+                trapV3CheckBox.Checked = false;
+            }
+            trapSnmpV2Panel.Enabled = trapV2CheckBox.Checked;
+        }
+
+        private void TrapV3Checkbox_CheckedChanged(CheckBox trapV2CheckBox, CheckBox trapV3CheckBox, TableLayoutPanel trapSnmpV3Panel)
+        {
+            if (trapV3CheckBox.Checked)
+            {
+                trapV2CheckBox.Checked = false;
+            }
+            trapSnmpV3Panel.Enabled = trapV3CheckBox.Checked;
+        }
+
+        private void InitNewTrapConfigPanel(int trapIndex)
+        {
+            #region initialize components
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SnmpEditPage));
+            TableLayoutPanel trapConfigLayoutPanel = new TableLayoutPanel();
+            Label nmsAddressLabel = new Label();
+            TextBox nmsAddressTextBox = new TextBox();
+            Label nmsPortLabel = new Label();
+            TextBox nmsPortTextBox = new TextBox();
+            CheckBox trapSupportV2CCheckBox = new CheckBox();
+            TableLayoutPanel trapSnmpV2CPanel = new TableLayoutPanel();
+            Label trapCommunityLabel = new Label();
+            TextBox trapCommunityTextBox = new TextBox();
+            CheckBox trapSupportV3CheckBox = new CheckBox();
+            TableLayoutPanel trapSnmpV3Panel = new TableLayoutPanel();
+            Label trapUserNameLabel = new Label();
+            TextBox trapUserNameTextBox = new TextBox();
+            Label trapAuthenticationPasswordLabel = new Label();
+            TextBox trapAuthenticationPasswordTextBox = new TextBox();
+            Label trapAuthenticationProtocolLabel = new Label();
+            ComboBox trapAuthenticationProtocolComboBox = new ComboBox();
+            Label trapPrivacyPasswordLabel = new Label();
+            TextBox trapPrivacyPasswordTextBox = new TextBox();
+            Label trapPrivacyProtocolLabel = new Label();
+            ComboBox trapPrivacyProtocolComboBox = new ComboBox();
+            #endregion
+            #region components style
+            trapConfigLayoutPanel.Name = $"TrapConfigLayoutPanel{trapIndex}";
+            trapConfigLayoutPanel.Dock = DockStyle.Fill;
+            trapConfigLayoutPanel.AutoSize = true ;
+            for (int i = 0; i < 5; i++)
+            {
+                trapConfigLayoutPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            }
+            trapConfigLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            trapConfigLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 67F));
+            trapConfigLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            trapConfigLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33F));
+
+            nmsAddressLabel.Name = $"NMSAddressLabel{trapIndex}";
+            nmsAddressLabel.Text = "&NMS Address:";
+            nmsAddressLabel.Anchor = AnchorStyles.Left;
+            nmsAddressLabel.AutoSize = true;
+            nmsAddressLabel.Enabled = EnableSnmpCheckBox.Checked;
+
+            nmsAddressTextBox.Name = $"NMSAddressTextBox{trapIndex}";
+            nmsAddressTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            nmsAddressTextBox.Enabled = EnableSnmpCheckBox.Checked;
+            nmsAddressTextBox.Leave += Textbox_NMSIpLostFocus;
+
+            nmsPortLabel.Name = $"NMSPortLabel{trapIndex}";
+            nmsPortLabel.Text = "&NMS Port:";
+            nmsPortLabel.Anchor = AnchorStyles.Left;
+            nmsPortLabel.AutoSize = true;
+            nmsPortLabel.Enabled = EnableSnmpCheckBox.Checked;
+
+            nmsPortTextBox.Name = $"NMSPortTextBox{trapIndex}";
+            nmsPortTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            nmsPortTextBox.Margin = new Padding( 3, 3, 6, 3);
+            nmsPortTextBox.Enabled = EnableSnmpCheckBox.Checked;
+            nmsPortTextBox.Text = "162";
+            nmsPortTextBox.Leave += Textbox_NMSIpLostFocus;
+
+            trapSupportV2CCheckBox.Name = $"TrapSupportV2cCheckBox{trapIndex}";
+            trapSupportV2CCheckBox.AutoSize = true;
+            trapSupportV2CCheckBox.Text = "Support SNMPv&2c";
+            trapSupportV2CCheckBox.Enabled = EnableSnmpCheckBox.Checked;
+            trapSupportV2CCheckBox.Checked = true;
+            trapSupportV2CCheckBox.CheckedChanged += ( object sender, EventArgs e) => TrapV2CCheckbox_CheckedChanged( trapSupportV2CCheckBox, trapSupportV3CheckBox, trapSnmpV2CPanel);
+            trapConfigLayoutPanel.SetColumnSpan(trapSupportV2CCheckBox, 4);
+
+            trapSnmpV2CPanel.Name = $"TrapSnmpV2cPanel{trapIndex}";
+            trapSnmpV2CPanel.Dock = DockStyle.Top;
+            trapSnmpV2CPanel.AutoSize = true;
+            trapSnmpV2CPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            trapSnmpV2CPanel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            trapSnmpV2CPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            trapSnmpV2CPanel.Enabled = EnableSnmpCheckBox.Checked && trapSupportV2CCheckBox.Checked;
+            trapConfigLayoutPanel.SetColumnSpan(trapSnmpV2CPanel, 4);
+
+            trapCommunityLabel.Name = $"TrapCommunityLabel{trapIndex}";
+            trapCommunityLabel.Text = "&Community:";
+            trapCommunityLabel.Anchor = AnchorStyles.Left;
+            trapCommunityLabel.AutoSize = true;
+
+            trapCommunityTextBox.Name = $"TrapCommunityTextBox{trapIndex}";
+            trapCommunityTextBox.Text = "public";
+            trapCommunityTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+
+            trapSupportV3CheckBox.Name = $"TrapSupportV3CheckBox{trapIndex}";
+            trapSupportV3CheckBox.AutoSize = true;
+            trapSupportV3CheckBox.Text = "Support SNMPv&3";
+            trapSupportV3CheckBox.Enabled = EnableSnmpCheckBox.Checked;
+            trapSupportV3CheckBox.CheckedChanged += (object sender, EventArgs e) => TrapV3Checkbox_CheckedChanged(trapSupportV2CCheckBox, trapSupportV3CheckBox, trapSnmpV3Panel); ;
+            trapConfigLayoutPanel.SetColumnSpan(trapSupportV3CheckBox, 4);
+
+            trapSnmpV3Panel.Name = $"TrapSnmpV3Panel{trapIndex}";
+            trapSnmpV3Panel.Dock = DockStyle.Top;
+            trapSnmpV3Panel.AutoSize = true;
+            for (int i = 0; i < 5; i++)
+            {
+                trapSnmpV3Panel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            }
+            trapSnmpV3Panel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            trapSnmpV3Panel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            trapSnmpV3Panel.Enabled = EnableSnmpCheckBox.Checked && trapSupportV3CheckBox.Checked;
+            trapConfigLayoutPanel.SetColumnSpan(trapSnmpV3Panel, 4);
+
+            trapUserNameLabel.Name = $"TrapUserNameLabel{trapIndex}";
+            trapUserNameLabel.Text = "&Username:";
+            trapUserNameLabel.Anchor = AnchorStyles.Left;
+            trapUserNameLabel.AutoSize = true;
+
+            trapUserNameTextBox.Name = $"TrapUserNameTextBox{trapIndex}";
+            trapUserNameTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+
+            trapAuthenticationPasswordLabel.Name = $"TrapAuthenticationPasswordLabel{trapIndex}";
+            trapAuthenticationPasswordLabel.Text = "Authentication &Password:";
+            trapAuthenticationPasswordLabel.Anchor = AnchorStyles.Left;
+            trapAuthenticationPasswordLabel.AutoSize = true;
+
+            trapAuthenticationPasswordTextBox.Name = $"TrapAuthenticationPasswordTextBox{trapIndex}";
+            trapAuthenticationPasswordTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+
+            trapAuthenticationProtocolLabel.Name = $"TrapAuthenticationProtocolLabel{trapIndex}";
+            trapAuthenticationProtocolLabel.Text = "Au&thentication Protocol:";
+            trapAuthenticationProtocolLabel.Anchor = AnchorStyles.Left;
+            trapAuthenticationProtocolLabel.AutoSize = true;
+
+            trapAuthenticationProtocolComboBox.Name = $"TrapAuthenticationProtocolComboBox{trapIndex}";
+            trapAuthenticationProtocolComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            trapAuthenticationProtocolComboBox.FormattingEnabled = true;
+            trapAuthenticationProtocolComboBox.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            trapAuthenticationProtocolComboBox.Items.AddRange(new object[] {
+                resources.GetString("AuthenticationProtocolComboBox.Items"),
+                resources.GetString("AuthenticationProtocolComboBox.Items1")});
+            trapAuthenticationProtocolComboBox.SelectedIndex = 0;
+
+            trapPrivacyPasswordLabel.Name = $"TrapPrivacyPasswordLabel{trapIndex}";
+            trapPrivacyPasswordLabel.Text = "Pr&ivacy Password:";
+            trapPrivacyPasswordLabel.Anchor = AnchorStyles.Left;
+            trapPrivacyPasswordLabel.AutoSize = true;
+
+            trapPrivacyPasswordTextBox.Name = $"TrapPrivacyPasswordTextBox{trapIndex}";
+            trapPrivacyPasswordTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+
+            trapPrivacyProtocolLabel.Name = $"TrapPrivacyProtocolLabel{trapIndex}";
+            trapPrivacyProtocolLabel.Text = "Priva&cy Protocol:";
+            trapPrivacyProtocolLabel.Anchor = AnchorStyles.Left;
+            trapPrivacyProtocolLabel.AutoSize = true;
+
+            trapPrivacyProtocolComboBox.Name = $"TrapPrivacyProtocolComboBox{trapIndex}";
+            trapPrivacyProtocolComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            trapPrivacyProtocolComboBox.FormattingEnabled = true;
+            trapPrivacyProtocolComboBox.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            trapPrivacyProtocolComboBox.Items.AddRange(new object[] {
+                resources.GetString("PrivacyProtocolComboBox.Items"),
+                resources.GetString("PrivacyProtocolComboBox.Items1")});
+            trapPrivacyProtocolComboBox.SelectedIndex = 0;
+            #endregion
+            #region add components to parent control
+            trapConfigLayoutPanel.Controls.Add(nmsAddressLabel, 0, 0);
+            trapConfigLayoutPanel.Controls.Add(nmsAddressTextBox, 1, 0);
+            trapConfigLayoutPanel.Controls.Add(nmsPortLabel, 2, 0);
+            trapConfigLayoutPanel.Controls.Add(nmsPortTextBox, 3, 0);
+            trapConfigLayoutPanel.Controls.Add(trapSupportV2CCheckBox, 0, 1);
+            trapSnmpV2CPanel.Controls.Add(trapCommunityLabel, 0, 0);
+            trapSnmpV2CPanel.Controls.Add(trapCommunityTextBox, 1, 0);
+            trapConfigLayoutPanel.Controls.Add(trapSnmpV2CPanel, 0, 2);
+            trapConfigLayoutPanel.Controls.Add(trapSupportV3CheckBox, 0, 3);
+            trapSnmpV3Panel.Controls.Add(trapUserNameLabel, 0, 0);
+            trapSnmpV3Panel.Controls.Add(trapUserNameTextBox, 1, 0);
+            trapSnmpV3Panel.Controls.Add(trapAuthenticationPasswordLabel, 0, 1);
+            trapSnmpV3Panel.Controls.Add(trapAuthenticationPasswordTextBox, 1, 1);
+            trapSnmpV3Panel.Controls.Add(trapAuthenticationProtocolLabel, 0, 2);
+            trapSnmpV3Panel.Controls.Add(trapAuthenticationProtocolComboBox, 1, 2);
+            trapSnmpV3Panel.Controls.Add(trapPrivacyPasswordLabel, 0, 3);
+            trapSnmpV3Panel.Controls.Add(trapPrivacyPasswordTextBox, 1, 3);
+            trapSnmpV3Panel.Controls.Add(trapPrivacyProtocolLabel, 0, 4);
+            trapSnmpV3Panel.Controls.Add(trapPrivacyProtocolComboBox, 1, 4);
+            trapConfigLayoutPanel.Controls.Add(trapSnmpV3Panel, 0, 4);
+            #endregion
+            trapConfigLayoutPanel.Visible = false;
+            FlexSettingGroupBox.Controls.Add(trapConfigLayoutPanel);
         }
     }
 }
