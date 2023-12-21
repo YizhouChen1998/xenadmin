@@ -1,3 +1,4 @@
+using System.Drawing.Imaging;
 using System.Windows.Forms;
 using DataGridView = System.Windows.Forms.DataGridView;
 
@@ -31,6 +32,7 @@ namespace XenAdmin.SettingsPanels
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SnmpEditPage));
             this.SnmpTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.DescLabel = new System.Windows.Forms.Label();
@@ -40,7 +42,8 @@ namespace XenAdmin.SettingsPanels
             this.ServiceStatusLabel = new System.Windows.Forms.Label();
             this.DebugLogCheckBox = new System.Windows.Forms.CheckBox();
             this.SwitchConfigLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.SwitchConfigListBox = new System.Windows.Forms.ListBox();
+            this.SwitchConfigListBox = new System.Windows.Forms.ListView();
+            this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.AddTrapButton = new System.Windows.Forms.Button();
             this.TestTrapButton = new System.Windows.Forms.Button();
             this.DeleteTrapButton = new System.Windows.Forms.Button();
@@ -141,11 +144,23 @@ namespace XenAdmin.SettingsPanels
             // SwitchConfigListBox
             // 
             resources.ApplyResources(this.SwitchConfigListBox, "SwitchConfigListBox");
-            this.SwitchConfigListBox.Items.AddRange(new object[] {
-            resources.GetString("SwitchConfigListBox.Items")});
+            this.SwitchConfigListBox.HideSelection = false;
+            this.SwitchConfigListBox.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
+            ((System.Windows.Forms.ListViewItem)(resources.GetObject("SwitchConfigListBox.Items")))});
+            this.SwitchConfigListBox.MultiSelect = false;
             this.SwitchConfigListBox.Name = "SwitchConfigListBox";
             this.SwitchConfigLayoutPanel.SetRowSpan(this.SwitchConfigListBox, 3);
+            this.SwitchConfigListBox.SmallImageList = this.imageList1;
+            this.SwitchConfigListBox.UseCompatibleStateImageBehavior = false;
+            this.SwitchConfigListBox.View = System.Windows.Forms.View.List;
             this.SwitchConfigListBox.SelectedIndexChanged += new System.EventHandler(this.ListBox_SelectedIndexChanged);
+            // 
+            // imageList1
+            // 
+            this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
+            this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
+            this.imageList1.Images.SetKeyName(0, "sl_system_16.png");
+            this.imageList1.Images.SetKeyName(1, "objects_16_textured.png");
             // 
             // AddTrapButton
             // 
@@ -365,7 +380,7 @@ namespace XenAdmin.SettingsPanels
         private Label ServiceStatusLabel;
         private CheckBox DebugLogCheckBox;
         private TableLayoutPanel SwitchConfigLayoutPanel;
-        private ListBox SwitchConfigListBox;
+        private ListView SwitchConfigListBox;
         private Button AddTrapButton;
         private Button TestTrapButton;
         private Button DeleteTrapButton;
@@ -390,5 +405,6 @@ namespace XenAdmin.SettingsPanels
         private TableLayoutPanel RetrieveSnmpPanel;
         private PictureBox RetrieveSnmpPicture;
         private Label RetrieveSnmpLabel;
+        private ImageList imageList1;
     }
 }

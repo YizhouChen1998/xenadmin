@@ -29,12 +29,12 @@
  */
 
 using System;
+using System.Collections.Generic;
 
 namespace XenAdmin.Actions.SNMP
 {
     public class SnmpConfiguration : IEquatable<SnmpConfiguration>
     {
-        public bool IsSuccessful { get; set; }
         public bool ServiceStatus { get; set; }
         public bool IsSnmpEnabled { get; set; }
         public bool IsLogEnabled { get; set; }
@@ -46,7 +46,6 @@ namespace XenAdmin.Actions.SNMP
         public string AuthProtocol { get; set; }
         public string PrivacyPass { get; set; }
         public string PrivacyProtocol { get; set; }
-        public SnmpConfiguration() { }
 
         public bool Equals(SnmpConfiguration other)
         {
@@ -73,7 +72,7 @@ namespace XenAdmin.Actions.SNMP
     }
 
     [Serializable]
-    public class SnmpConfigurationRes<T>
+    public class SnmpRes<T>
     {
         public int code { get; set; }
         public T result { get; set; }
@@ -81,37 +80,43 @@ namespace XenAdmin.Actions.SNMP
     }
 
     [Serializable]
-    public class GetConfigData
+    public class SnmpConfigurationData
     {
-        public GetConfigCommonData common { get; set; }
-        public GetConfigSnmpData snmpd { get; set; }
-        public GetConfigSnmpV2CData snmpd_v2c { get; set; }
-        public GetConfigSnmpV3Data snmpd_v3 { get; set; }
+        public SnmpConfigurationCommonData common { get; set; }
+        public SnmpConfigurationAgentData agent { get; set; }
+        public List<SnmpConfigurationNmssData> nmss { get; set; }
     }
 
     [Serializable]
-    public class GetConfigCommonData
+    public class SnmpConfigurationCommonData
     {
         public string enabled { get; set; }
         public string debug_log { get; set; }
     }
 
     [Serializable]
-    public class GetConfigSnmpData
+    public class SnmpConfigurationAgentData
     {
         public string v2c { get; set; }
         public string v3 { get; set; }
-    }
-
-    [Serializable]
-    public class GetConfigSnmpV2CData
-    {
         public string community { get; set; }
+        public string user_name { get; set; }
+        public string authentication_password { get; set; }
+        public string authentication_protocol { get; set; }
+        public string privacy_password { get; set; }
+        public string privacy_protocol { get; set; }
+        public string engine_id { get; set; }
     }
 
     [Serializable]
-    public class GetConfigSnmpV3Data
+    public class SnmpConfigurationNmssData
     {
+        public string uuid { get; set; }
+        public string address { get; set; }
+        public int port { get; set; }
+        public string v2c { get; set; }
+        public string v3 { get; set; }
+        public string community { get; set; }
         public string user_name { get; set; }
         public string authentication_password { get; set; }
         public string authentication_protocol { get; set; }

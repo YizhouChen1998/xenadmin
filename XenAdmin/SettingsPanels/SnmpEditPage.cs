@@ -50,18 +50,18 @@ namespace XenAdmin.SettingsPanels
         public override string Text => Messages.SNMP;
         public string SubText => Messages.SNMP_EDIT_PAGE_TEXT;
         public Image Image => Images.StaticImages._000_Network_h32bit_16;
-        private readonly ToolTip _invalidParamToolTip = new ToolTip
+        private ToolTip _invalidParamToolTip = new ToolTip
         {
             IsBalloon = true,
             ToolTipIcon = ToolTipIcon.Warning
         };
-        private string _invalidParamToolTipText = "";
+        private (Control Control, string Title, string Text) _tuple;
         private static readonly Regex RegexCommon = new Regex(@"^[a-zA-Z0-9-.\#@=:_]{6,32}$");
         private static readonly Regex RegexEncryptTextBox = new Regex(@"^([a-zA-Z0-9-.\#@=:_]{8,32}|[*]{8})$");
         private bool _encryptTextBoxFlag;
         private readonly List<int> _trapIndexList = new List<int>();
         private IXenObject _clone;
-        private SnmpConfiguration _snmpConfiguration = new SnmpConfiguration();
+        private SnmpConfiguration _snmpConfiguration;
         private readonly SnmpConfiguration _snmpCurrentConfiguration = new SnmpConfiguration();
 
         public SnmpEditPage()
@@ -83,15 +83,14 @@ namespace XenAdmin.SettingsPanels
         {
             get
             {
-                _invalidParamToolTipText = " ";
+                _tuple = (null, null, null);
                 if (!EnableSnmpCheckBox.Checked)
                 {
                     return true;
                 }
                 if (!SupportV2cCheckBox.Checked && !SupportV3CheckBox.Checked)
                 {
-                    _invalidParamToolTip.Tag = SupportV2cCheckBox;
-                    _invalidParamToolTip.ToolTipTitle = Messages.SNMP_ALLOW_CHOOSE_TITLE;
+                    _tuple = (SupportV2cCheckBox, Messages.SNMP_ALLOW_CHOOSE_TITLE, Messages.SNMP_ALLOW_CHOOSE_TITLE);
                     return false;
                 }
                 if (SupportV2cCheckBox.Checked)
@@ -99,9 +98,7 @@ namespace XenAdmin.SettingsPanels
                     var communityStr = CommunityTextBox.Text;
                     if (string.IsNullOrEmpty(communityStr) || !RegexCommon.Match(communityStr.Trim()).Success)
                     {
-                        _invalidParamToolTip.Tag = CommunityTextBox;
-                        _invalidParamToolTip.ToolTipTitle = Messages.SNMP_ALLOW_COMMUNITY_TITLE;
-                        _invalidParamToolTipText = Messages.SNMP_ALLOW_COMMUNITY_TEXT;
+                        _tuple = (CommunityTextBox, Messages.SNMP_ALLOW_COMMUNITY_TITLE, Messages.SNMP_ALLOW_COMMUNITY_TEXT);
                         return false;
                     }
                 }
@@ -112,25 +109,19 @@ namespace XenAdmin.SettingsPanels
                     var privacyPassStr = PrivacyPasswordTextBox.Text;
                     if (string.IsNullOrEmpty(usernameStr) || !RegexCommon.Match(usernameStr.Trim()).Success)
                     {
-                        _invalidParamToolTip.Tag = UserNameTextBox;
-                        _invalidParamToolTip.ToolTipTitle = Messages.SNMP_ALLOW_USER_TITLE;
-                        _invalidParamToolTipText = Messages.SNMP_ALLOW_COMMUNITY_TEXT;
+                        _tuple = (UserNameTextBox, Messages.SNMP_ALLOW_USER_TITLE, Messages.SNMP_ALLOW_COMMUNITY_TEXT);
                         return false;
                     }
 
                     if (string.IsNullOrEmpty(authPassStr) || !RegexEncryptTextBox.Match(authPassStr.Trim()).Success)
                     {
-                        _invalidParamToolTip.Tag = AuthenticationPasswordLabelTextBox;
-                        _invalidParamToolTip.ToolTipTitle = Messages.SNMP_ALLOW_AUTH_TITLE;
-                        _invalidParamToolTipText = Messages.SNMP_ALLOW_AUTH_TEXT;
+                        _tuple = (AuthenticationPasswordLabelTextBox, Messages.SNMP_ALLOW_AUTH_TITLE, Messages.SNMP_ALLOW_AUTH_TEXT);
                         return false;
                     }
 
                     if (string.IsNullOrEmpty(privacyPassStr) || !RegexEncryptTextBox.Match(privacyPassStr.Trim()).Success)
                     {
-                        _invalidParamToolTip.Tag = PrivacyPasswordTextBox;
-                        _invalidParamToolTip.ToolTipTitle = Messages.SNMP_ALLOW_PRIVACY_TITLE;
-                        _invalidParamToolTipText = Messages.SNMP_ALLOW_AUTH_TEXT;
+                        _tuple = (PrivacyPasswordTextBox, Messages.SNMP_ALLOW_PRIVACY_TITLE, Messages.SNMP_ALLOW_AUTH_TEXT);
                         return false;
                     }
                 }
@@ -145,18 +136,24 @@ namespace XenAdmin.SettingsPanels
 
         public void ShowLocalValidationMessages()
         {
-            if (_invalidParamToolTip.Tag is Control ctrl)
+            if (_tuple.Control != null)
             {
-                _invalidParamToolTip.Hide(ctrl);
-                if (!string.IsNullOrEmpty(_invalidParamToolTip.ToolTipTitle))
+                _invalidParamToolTip.Dispose();
+                _invalidParamToolTip = new ToolTip
                 {
-                    HelpersGUI.ShowBalloonMessage(ctrl, _invalidParamToolTip, _invalidParamToolTipText);
-                }
+                    IsBalloon = true,
+                    ToolTipIcon = ToolTipIcon.Warning,
+                };
+                _invalidParamToolTip.ToolTipTitle = _tuple.Title;
+                HelpersGUI.ShowBalloonMessage(_tuple.Control, _invalidParamToolTip, _tuple.Text);
             }
         }
 
         public void HideLocalValidationMessages()
         {
+            if (_tuple.Control != null) _invalidParamToolTip.Hide(_tuple.Control);
+            _invalidParamToolTip.RemoveAll();
+            _invalidParamToolTip.ToolTipTitle = null;
         }
 
         public AsyncAction SaveSettings()
@@ -175,22 +172,20 @@ namespace XenAdmin.SettingsPanels
 
         private void ActionCompleted(ActionBase sender)
         {
-            if (sender is SnmpRetrieveAction a && a.Succeeded)
-            {
-                _snmpConfiguration = a.SnmpConfiguration;
-                Program.Invoke(this.Parent, UpdateRetrieveStatus);
-            }
+            _snmpConfiguration = null;
+            if (sender.Succeeded && sender is SnmpRetrieveAction a && a.SnmpConfiguration != null) _snmpConfiguration = a.SnmpConfiguration;
+            Program.Invoke(Parent, UpdateRetrieveStatus);
         }
 
         private void UpdateRetrieveStatus()
         {
-            if (_snmpConfiguration.IsSuccessful)
+            if (_snmpConfiguration != null)
             {
                 _encryptTextBoxFlag = true;
                 EnableSnmpCheckBox.Enabled = true;
                 AddTrapButton.Enabled = true;
                 RetrieveSnmpPanel.Visible = false;
-                ServiceStatusPicture.Visible = ServiceStatusLabel.Visible = 
+                ServiceStatusPicture.Visible = ServiceStatusLabel.Visible =
                     !_snmpConfiguration.ServiceStatus && _snmpConfiguration.IsSnmpEnabled;
                 EnableSnmpCheckBox.Checked = _snmpConfiguration.IsSnmpEnabled;
                 DebugLogCheckBox.Checked = _snmpConfiguration.IsLogEnabled;
@@ -293,7 +288,7 @@ namespace XenAdmin.SettingsPanels
 
         public void SnmpEditPage_Load(object sender, EventArgs e)
         {
-            SwitchConfigListBox.SelectedIndex = 0;
+            SwitchConfigListBox.Items[0].Selected = true;
             AuthenticationProtocolComboBox.SelectedIndex = 0;
             PrivacyProtocolComboBox.SelectedIndex = 0;
         }
@@ -320,11 +315,16 @@ namespace XenAdmin.SettingsPanels
 
         private void ListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            int selectedIndex = SwitchConfigListBox.SelectedIndex;
+            if (SwitchConfigListBox.SelectedIndices.Count == 0)
+            {
+                TestTrapButton.Enabled = DeleteTrapButton.Enabled = false;
+                return;
+            }
+            int selectedIndex = SwitchConfigListBox.SelectedIndices[0];
             // change button status
             TestTrapButton.Enabled = DeleteTrapButton.Enabled = selectedIndex != 0;
             // change setting GroupBox text
-            FlexSettingGroupBox.Text = selectedIndex == 0 ? "XenServer SNMP agent settings" : "Trap NMS server settings";
+            FlexSettingGroupBox.Text = selectedIndex == 0 ? "XenServer SNMP agent settings" : "NMS trap receiver settings";
             // change to corresponding setting panel
             foreach (TableLayoutPanel panel in FlexSettingGroupBox.Controls)
             {
@@ -351,22 +351,26 @@ namespace XenAdmin.SettingsPanels
             {
                 _trapIndexList.Add(trapIndex);
             }
-            SwitchConfigListBox.Items.Add("New trap");
+            SwitchConfigListBox.Items.Add(new ListViewItem("New Trap Receiver", 1));
             AddTrapButton.Enabled = SwitchConfigListBox.Items.Count == 1;
             InitNewTrapConfigPanel(trapIndex);
         }
 
         private void DeleteTrapButton_Click(object sender, EventArgs e)
         {
-            int selectedIndex = SwitchConfigListBox.SelectedIndex;
+            if (SwitchConfigListBox.SelectedIndices.Count == 0)
+            {
+                return;
+            }
+            int selectedIndex = SwitchConfigListBox.SelectedIndices[0];
             SwitchConfigListBox.Items.RemoveAt(selectedIndex);
             _trapIndexList.RemoveAt(selectedIndex - 1);
             AddTrapButton.Enabled = SwitchConfigListBox.Items.Count == 1;
             FlexSettingGroupBox.Controls.RemoveAt(selectedIndex);
-            SwitchConfigListBox.SelectedIndex = selectedIndex - 1;
+            SwitchConfigListBox.Items[selectedIndex - 1].Selected = true;
         }
 
-        private void Textbox_NMSIpLostFocus(object sender, EventArgs e)
+        private void Textbox_IpChange(object sender, EventArgs e)
         {
             TextBox triggerTextBox = (TextBox)sender;
             int currentTrapIndex = Convert.ToInt32(triggerTextBox.Name[triggerTextBox.Name.Length - 1].ToString());
@@ -375,19 +379,14 @@ namespace XenAdmin.SettingsPanels
             TextBox portTextBox = (TextBox)panel.Controls[$"NMSPortTextBox{currentTrapIndex}"];
             string address = addressTextBox.Text;
             string port = portTextBox.Text;
-            int selectedIndex = SwitchConfigListBox.SelectedIndex;
-            // sometimes selectedIndex is -1, which will cause error 
-            if (selectedIndex == -1)
-            {
-                return;
-            }
+            int selectedIndex = _trapIndexList.IndexOf(currentTrapIndex) + 1;
             if (string.IsNullOrWhiteSpace(address) && string.IsNullOrWhiteSpace(port))
             {
-                SwitchConfigListBox.Items[selectedIndex] = "New trap";
+                SwitchConfigListBox.Items[selectedIndex].Text = "New trap";
             }
             else
             {
-                SwitchConfigListBox.Items[selectedIndex] = $"{address}:{port}";
+                SwitchConfigListBox.Items[selectedIndex].Text = $"{address}:{port}";
             }
         }
 
@@ -457,7 +456,7 @@ namespace XenAdmin.SettingsPanels
             nmsAddressTextBox.Name = $"NMSAddressTextBox{trapIndex}";
             nmsAddressTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             nmsAddressTextBox.Enabled = EnableSnmpCheckBox.Checked;
-            nmsAddressTextBox.Leave += Textbox_NMSIpLostFocus;
+            nmsAddressTextBox.TextChanged += Textbox_IpChange;
 
             nmsPortLabel.Name = $"NMSPortLabel{trapIndex}";
             nmsPortLabel.Text = "&NMS Port:";
@@ -470,7 +469,7 @@ namespace XenAdmin.SettingsPanels
             nmsPortTextBox.Margin = new Padding( 3, 3, 6, 3);
             nmsPortTextBox.Enabled = EnableSnmpCheckBox.Checked;
             nmsPortTextBox.Text = "162";
-            nmsPortTextBox.Leave += Textbox_NMSIpLostFocus;
+            nmsPortTextBox.TextChanged += Textbox_IpChange;
 
             trapSupportV2CCheckBox.Name = $"TrapSupportV2cCheckBox{trapIndex}";
             trapSupportV2CCheckBox.AutoSize = true;

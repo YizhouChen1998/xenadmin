@@ -78,7 +78,7 @@ namespace XenAdmin.Actions.SNMP
         private void UpdateSnmpConfigurationForHost(IXenObject o)
         {
             var configArgObj = GetConfigArgObj();
-            //Ignore null values
+            // Ignore null values
             JsonSerializerSettings settings = new JsonSerializerSettings
             {
                 NullValueHandling = NullValueHandling.Ignore
@@ -89,7 +89,7 @@ namespace XenAdmin.Actions.SNMP
             };
             var resultJson = Host.call_plugin(o.Connection.Session, o.opaque_ref, SnmpXapiConfig.XAPI_SNMP_PLUGIN_NAME,
                 SnmpXapiConfig.XAPI_SNMP_SET_CONFIG, configArgDict);
-            var resultObj = JsonConvert.DeserializeObject<SnmpConfigurationRes<string>>(resultJson);
+            var resultObj = JsonConvert.DeserializeObject<SnmpRes<string>>(resultJson);
             Log.ErrorFormat("SNMP update result: {0}", resultJson);
             switch (resultObj.code)
             {
