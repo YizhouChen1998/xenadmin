@@ -5180,11 +5180,29 @@ namespace XenAdmin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to When control domain cpu usage exceeds {0} for {1} min(s).
+        /// </summary>
+        public static string ALERT_DOM0_CPUUSAGE_SUB_TEXT {
+            get {
+                return ResourceManager.GetString("ALERT_DOM0_CPUUSAGE_SUB_TEXT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to When control domain memory usage exceeds {0} for {1} min(s).
         /// </summary>
         public static string ALERT_DOM0_MEMORY_SUB_TEXT {
             get {
                 return ResourceManager.GetString("ALERT_DOM0_MEMORY_SUB_TEXT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to When control domain memory free falls below {0} for {1} min(s).
+        /// </summary>
+        public static string ALERT_DOM0_MEMORYFREE_SUB_TEXT {
+            get {
+                return ResourceManager.GetString("ALERT_DOM0_MEMORYFREE_SUB_TEXT", resourceCulture);
             }
         }
         

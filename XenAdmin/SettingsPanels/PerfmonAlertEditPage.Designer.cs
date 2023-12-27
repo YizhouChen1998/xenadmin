@@ -34,6 +34,22 @@ namespace XenAdmin.SettingsPanels
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.labelRubric = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.Dom0MemoryFreeGroupBox = new XenAdmin.Controls.DecentGroupBox();
+            this.Dom0MemoryFreeCheckBox = new XenAdmin.SettingsPanels.AlertCheckBox();
+            this.Dom0MemoryFreeValueLabel = new System.Windows.Forms.Label();
+            this.Dom0MemoryFreeValue = new XenAdmin.SettingsPanels.AlertNumericUpDown();
+            this.Dom0MemoryFreeValueUnitLabel = new System.Windows.Forms.Label();
+            this.Dom0MemoryFreeDurationLabel = new System.Windows.Forms.Label();
+            this.Dom0MemoryFreeDuration = new XenAdmin.SettingsPanels.AlertNumericUpDown();
+            this.Dom0MemoryFreeDurationUnitLabel = new System.Windows.Forms.Label();
+            this.Dom0CPUUsageGroupBox = new XenAdmin.Controls.DecentGroupBox();
+            this.Dom0CPUUsageCheckBox = new XenAdmin.SettingsPanels.AlertCheckBox();
+            this.Dom0CPUUsageValueLabel = new System.Windows.Forms.Label();
+            this.Dom0CPUUsageValue = new XenAdmin.SettingsPanels.AlertNumericUpDown();
+            this.Dom0CPUUsageValueUnitLabel = new System.Windows.Forms.Label();
+            this.Dom0CPUUsageDurationLabel = new System.Windows.Forms.Label();
+            this.Dom0CPUUsageDuration = new XenAdmin.SettingsPanels.AlertNumericUpDown();
+            this.Dom0CPUUsageDurationUnitLabel = new System.Windows.Forms.Label();
             this.PhysicalUtilisationGroupBox = new XenAdmin.Controls.DecentGroupBox();
             this.physicalUtilisationMinutesLabel = new System.Windows.Forms.Label();
             this.nudPhysicalUtilisationDurationThreshold = new XenAdmin.SettingsPanels.AlertNumericUpDown();
@@ -93,6 +109,12 @@ namespace XenAdmin.SettingsPanels
             this.nudAlertInterval = new XenAdmin.SettingsPanels.AlertNumericUpDown();
             this.tableLayoutPanel1.SuspendLayout();
             this.panel1.SuspendLayout();
+            this.Dom0MemoryFreeGroupBox.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.Dom0MemoryFreeValue)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Dom0MemoryFreeDuration)).BeginInit();
+            this.Dom0CPUUsageGroupBox.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.Dom0CPUUsageValue)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Dom0CPUUsageDuration)).BeginInit();
             this.PhysicalUtilisationGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudPhysicalUtilisationDurationThreshold)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudPhysicalUtilisation)).BeginInit();
@@ -131,6 +153,8 @@ namespace XenAdmin.SettingsPanels
             // 
             resources.ApplyResources(this.tableLayoutPanel1, "tableLayoutPanel1");
             this.tableLayoutPanel1.Controls.Add(this.labelRubric, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.Dom0MemoryFreeGroupBox, 0, 10);
+            this.tableLayoutPanel1.Controls.Add(this.Dom0CPUUsageGroupBox, 0, 9);
             this.tableLayoutPanel1.Controls.Add(this.PhysicalUtilisationGroupBox, 0, 8);
             this.tableLayoutPanel1.Controls.Add(this.Dom0MemoryUsageGroupBox, 0, 7);
             this.tableLayoutPanel1.Controls.Add(this.MemoryGroupBox, 0, 5);
@@ -153,6 +177,171 @@ namespace XenAdmin.SettingsPanels
             this.panel1.Controls.Add(this.AlertIntervalMinutesLabel);
             this.panel1.Controls.Add(this.nudAlertInterval);
             this.panel1.Name = "panel1";
+            // 
+            // Dom0MemoryFreeGroupBox
+            // 
+            resources.ApplyResources(this.Dom0MemoryFreeGroupBox, "Dom0MemoryFreeGroupBox");
+            this.Dom0MemoryFreeGroupBox.Controls.Add(this.Dom0MemoryFreeCheckBox);
+            this.Dom0MemoryFreeGroupBox.Controls.Add(this.Dom0MemoryFreeValueLabel);
+            this.Dom0MemoryFreeGroupBox.Controls.Add(this.Dom0MemoryFreeValue);
+            this.Dom0MemoryFreeGroupBox.Controls.Add(this.Dom0MemoryFreeValueUnitLabel);
+            this.Dom0MemoryFreeGroupBox.Controls.Add(this.Dom0MemoryFreeDurationLabel);
+            this.Dom0MemoryFreeGroupBox.Controls.Add(this.Dom0MemoryFreeDuration);
+            this.Dom0MemoryFreeGroupBox.Controls.Add(this.Dom0MemoryFreeDurationUnitLabel);
+            this.Dom0MemoryFreeGroupBox.Name = "Dom0MemoryFreeGroupBox";
+            this.Dom0MemoryFreeGroupBox.TabStop = false;
+            // 
+            // Dom0MemoryFreeCheckBox
+            // 
+            resources.ApplyResources(this.Dom0MemoryFreeCheckBox, "Dom0MemoryFreeCheckBox");
+            this.Dom0MemoryFreeCheckBox.BackColor = System.Drawing.Color.White;
+            this.Dom0MemoryFreeCheckBox.Name = "Dom0MemoryFreeCheckBox";
+            this.Dom0MemoryFreeCheckBox.UseVisualStyleBackColor = false;
+            // 
+            // Dom0MemoryFreeValueLabel
+            // 
+            resources.ApplyResources(this.Dom0MemoryFreeValueLabel, "Dom0MemoryFreeValueLabel");
+            this.Dom0MemoryFreeValueLabel.Name = "Dom0MemoryFreeValueLabel";
+            // 
+            // Dom0MemoryFreeValue
+            // 
+            this.Dom0MemoryFreeValue.Increment = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
+            resources.ApplyResources(this.Dom0MemoryFreeValue, "Dom0MemoryFreeValue");
+            this.Dom0MemoryFreeValue.Maximum = new decimal(new int[] {
+            -1,
+            2147483647,
+            0,
+            0});
+            this.Dom0MemoryFreeValue.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.Dom0MemoryFreeValue.Name = "Dom0MemoryFreeValue";
+            this.Dom0MemoryFreeValue.Value = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            // 
+            // Dom0MemoryFreeValueUnitLabel
+            // 
+            resources.ApplyResources(this.Dom0MemoryFreeValueUnitLabel, "Dom0MemoryFreeValueUnitLabel");
+            this.Dom0MemoryFreeValueUnitLabel.Name = "Dom0MemoryFreeValueUnitLabel";
+            // 
+            // Dom0MemoryFreeDurationLabel
+            // 
+            resources.ApplyResources(this.Dom0MemoryFreeDurationLabel, "Dom0MemoryFreeDurationLabel");
+            this.Dom0MemoryFreeDurationLabel.Name = "Dom0MemoryFreeDurationLabel";
+            // 
+            // Dom0MemoryFreeDuration
+            // 
+            resources.ApplyResources(this.Dom0MemoryFreeDuration, "Dom0MemoryFreeDuration");
+            this.Dom0MemoryFreeDuration.Maximum = new decimal(new int[] {
+            60,
+            0,
+            0,
+            0});
+            this.Dom0MemoryFreeDuration.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.Dom0MemoryFreeDuration.Name = "Dom0MemoryFreeDuration";
+            this.Dom0MemoryFreeDuration.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
+            // Dom0MemoryFreeDurationUnitLabel
+            // 
+            resources.ApplyResources(this.Dom0MemoryFreeDurationUnitLabel, "Dom0MemoryFreeDurationUnitLabel");
+            this.Dom0MemoryFreeDurationUnitLabel.Name = "Dom0MemoryFreeDurationUnitLabel";
+            // 
+            // Dom0CPUUsageGroupBox
+            // 
+            resources.ApplyResources(this.Dom0CPUUsageGroupBox, "Dom0CPUUsageGroupBox");
+            this.Dom0CPUUsageGroupBox.Controls.Add(this.Dom0CPUUsageCheckBox);
+            this.Dom0CPUUsageGroupBox.Controls.Add(this.Dom0CPUUsageValueLabel);
+            this.Dom0CPUUsageGroupBox.Controls.Add(this.Dom0CPUUsageValue);
+            this.Dom0CPUUsageGroupBox.Controls.Add(this.Dom0CPUUsageValueUnitLabel);
+            this.Dom0CPUUsageGroupBox.Controls.Add(this.Dom0CPUUsageDurationLabel);
+            this.Dom0CPUUsageGroupBox.Controls.Add(this.Dom0CPUUsageDuration);
+            this.Dom0CPUUsageGroupBox.Controls.Add(this.Dom0CPUUsageDurationUnitLabel);
+            this.Dom0CPUUsageGroupBox.Name = "Dom0CPUUsageGroupBox";
+            this.Dom0CPUUsageGroupBox.TabStop = false;
+            // 
+            // Dom0CPUUsageCheckBox
+            // 
+            resources.ApplyResources(this.Dom0CPUUsageCheckBox, "Dom0CPUUsageCheckBox");
+            this.Dom0CPUUsageCheckBox.BackColor = System.Drawing.Color.White;
+            this.Dom0CPUUsageCheckBox.Name = "Dom0CPUUsageCheckBox";
+            this.Dom0CPUUsageCheckBox.UseVisualStyleBackColor = false;
+            // 
+            // Dom0CPUUsageValueLabel
+            // 
+            resources.ApplyResources(this.Dom0CPUUsageValueLabel, "Dom0CPUUsageValueLabel");
+            this.Dom0CPUUsageValueLabel.Name = "Dom0CPUUsageValueLabel";
+            // 
+            // Dom0CPUUsageValue
+            // 
+            this.Dom0CPUUsageValue.Increment = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
+            resources.ApplyResources(this.Dom0CPUUsageValue, "Dom0CPUUsageValue");
+            this.Dom0CPUUsageValue.Minimum = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
+            this.Dom0CPUUsageValue.Name = "Dom0CPUUsageValue";
+            this.Dom0CPUUsageValue.Value = new decimal(new int[] {
+            50,
+            0,
+            0,
+            0});
+            // 
+            // Dom0CPUUsageValueUnitLabel
+            // 
+            resources.ApplyResources(this.Dom0CPUUsageValueUnitLabel, "Dom0CPUUsageValueUnitLabel");
+            this.Dom0CPUUsageValueUnitLabel.Name = "Dom0CPUUsageValueUnitLabel";
+            // 
+            // Dom0CPUUsageDurationLabel
+            // 
+            resources.ApplyResources(this.Dom0CPUUsageDurationLabel, "Dom0CPUUsageDurationLabel");
+            this.Dom0CPUUsageDurationLabel.Name = "Dom0CPUUsageDurationLabel";
+            // 
+            // Dom0CPUUsageDuration
+            // 
+            resources.ApplyResources(this.Dom0CPUUsageDuration, "Dom0CPUUsageDuration");
+            this.Dom0CPUUsageDuration.Maximum = new decimal(new int[] {
+            60,
+            0,
+            0,
+            0});
+            this.Dom0CPUUsageDuration.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.Dom0CPUUsageDuration.Name = "Dom0CPUUsageDuration";
+            this.Dom0CPUUsageDuration.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
+            // Dom0CPUUsageDurationUnitLabel
+            // 
+            resources.ApplyResources(this.Dom0CPUUsageDurationUnitLabel, "Dom0CPUUsageDurationUnitLabel");
+            this.Dom0CPUUsageDurationUnitLabel.Name = "Dom0CPUUsageDurationUnitLabel";
             // 
             // PhysicalUtilisationGroupBox
             // 
@@ -764,6 +953,14 @@ namespace XenAdmin.SettingsPanels
             this.tableLayoutPanel1.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            this.Dom0MemoryFreeGroupBox.ResumeLayout(false);
+            this.Dom0MemoryFreeGroupBox.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.Dom0MemoryFreeValue)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Dom0MemoryFreeDuration)).EndInit();
+            this.Dom0CPUUsageGroupBox.ResumeLayout(false);
+            this.Dom0CPUUsageGroupBox.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.Dom0CPUUsageValue)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Dom0CPUUsageDuration)).EndInit();
             this.PhysicalUtilisationGroupBox.ResumeLayout(false);
             this.PhysicalUtilisationGroupBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudPhysicalUtilisationDurationThreshold)).EndInit();
@@ -862,5 +1059,21 @@ namespace XenAdmin.SettingsPanels
         private System.Windows.Forms.Label physicalUtilisationDurationLabel;
         private System.Windows.Forms.Label physicalUtilisationLabel;
         private System.Windows.Forms.Panel panel1;
+        private Controls.DecentGroupBox Dom0CPUUsageGroupBox;
+        private AlertCheckBox Dom0CPUUsageCheckBox;
+        private System.Windows.Forms.Label Dom0CPUUsageValueLabel;
+        private AlertNumericUpDown Dom0CPUUsageValue;
+        private System.Windows.Forms.Label Dom0CPUUsageValueUnitLabel;
+        private System.Windows.Forms.Label Dom0CPUUsageDurationLabel;
+        private AlertNumericUpDown Dom0CPUUsageDuration;
+        private System.Windows.Forms.Label Dom0CPUUsageDurationUnitLabel;
+        private Controls.DecentGroupBox Dom0MemoryFreeGroupBox;
+        private AlertCheckBox Dom0MemoryFreeCheckBox;
+        private System.Windows.Forms.Label Dom0MemoryFreeValueLabel;
+        private AlertNumericUpDown Dom0MemoryFreeValue;
+        private System.Windows.Forms.Label Dom0MemoryFreeValueUnitLabel;
+        private System.Windows.Forms.Label Dom0MemoryFreeDurationLabel;
+        private AlertNumericUpDown Dom0MemoryFreeDuration;
+        private System.Windows.Forms.Label Dom0MemoryFreeDurationUnitLabel;
     }
 }

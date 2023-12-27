@@ -61,6 +61,8 @@ namespace XenAdmin.Alerts
         public const string ALARM_TYPE_MEMORY_DOM0_USAGE = "mem_usage";
         public const string ALARM_TYPE_LOG_FILESYSTEM = "log_fs_usage";
         public const string ALARM_TYPE_SR_PHYSICAL_UTILISATION = "physical_utilisation";
+        public const string ALARM_TYPE_CPU_DOM0_USAGE = "dom0_cpu_usage";
+        public const string ALARM_TYPE_MEMORY_DOM0_FREE = "dom0_mem_usage";
 
         /// <summary>
         /// This is the name that will be stored in the SR's other-config:perfmon key
@@ -122,6 +124,16 @@ namespace XenAdmin.Alerts
         public bool IsSrPhysicalUtilisation
         {
             get { return name.Equals(ALARM_TYPE_SR_PHYSICAL_UTILISATION); }
+        }
+
+        public bool IsDom0CPUUsage
+        {
+            get { return name.Equals(ALARM_TYPE_CPU_DOM0_USAGE); }
+        }
+
+        public bool IsDom0MemoryFree
+        {
+            get { return name.Equals(ALARM_TYPE_MEMORY_DOM0_FREE); }
         }
 
         public decimal AlarmTriggerLevel

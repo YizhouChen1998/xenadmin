@@ -59,6 +59,8 @@ namespace XenAdmin.SettingsPanels
         private readonly AlertGroup srAlert;
         private readonly AlertGroup dom0MemoryAlert;
         private readonly AlertGroup physicalUtilisationAlert;
+        private readonly AlertGroup dom0CPUUsageAlert;
+        private readonly AlertGroup dom0MemoryFreeAlert;
 
         public PerfmonAlertEditPage()
         {
@@ -183,6 +185,36 @@ namespace XenAdmin.SettingsPanels
                 GuiToXapiAlertInterval = (num => num * 60),
             };
 
+            dom0CPUUsageAlert = new AlertGroup(Dom0CPUUsageCheckBox, Dom0CPUUsageGroupBox,
+                Dom0CPUUsageValue, Dom0CPUUsageDuration, nudAlertInterval,
+                new[] { Dom0CPUUsageValueLabel, Dom0CPUUsageValueUnitLabel, Dom0CPUUsageDurationLabel, Dom0CPUUsageDurationUnitLabel })
+            {
+                AlertEnablementChanged = SetAlertIntervalEnablement,
+                SubTextFormat = Messages.ALERT_DOM0_CPUUSAGE_SUB_TEXT,
+                PerfmonDefinitionName = PerfmonDefinition.ALARM_TYPE_CPU_DOM0_USAGE,
+                XapiToGuiTriggerLevel = (num => num * 100),
+                XapiToGuiTriggerPeriod = (num => num / 60),
+                XapiToGuiAlertInterval = (num => num / 60),
+                GuiToXapiTriggerLevel = (num => num / 100),
+                GuiToXapiTriggerPeriod = (num => num * 60),
+                GuiToXapiAlertInterval = (num => num * 60),
+            };
+
+            dom0MemoryFreeAlert = new AlertGroup(Dom0MemoryFreeCheckBox, Dom0MemoryFreeGroupBox,
+                Dom0MemoryFreeValue, Dom0MemoryFreeDuration, nudAlertInterval,
+                new[] { Dom0MemoryFreeValueLabel, Dom0MemoryFreeValueUnitLabel, Dom0MemoryFreeDurationLabel, Dom0MemoryFreeDurationUnitLabel })
+            {
+                AlertEnablementChanged = SetAlertIntervalEnablement,
+                SubTextFormat = Messages.ALERT_DOM0_MEMORYFREE_SUB_TEXT,
+                PerfmonDefinitionName = PerfmonDefinition.ALARM_TYPE_MEMORY_DOM0_FREE,
+                XapiToGuiTriggerLevel = (num => num / 1024),
+                XapiToGuiTriggerPeriod = (num => num / 60),
+                XapiToGuiAlertInterval = (num => num / 60),
+                GuiToXapiTriggerLevel = (num => num * 1024),
+                GuiToXapiTriggerPeriod = (num => num * 60),
+                GuiToXapiAlertInterval = (num => num * 60),
+            };
+
             cpuAlert.ToggleAlertGroupEnablement();
             netAlert.ToggleAlertGroupEnablement();
             diskAlert.ToggleAlertGroupEnablement();
@@ -190,13 +222,15 @@ namespace XenAdmin.SettingsPanels
             srAlert.ToggleAlertGroupEnablement();
             dom0MemoryAlert.ToggleAlertGroupEnablement();
             physicalUtilisationAlert.ToggleAlertGroupEnablement();
+            dom0CPUUsageAlert.ToggleAlertGroupEnablement();
+            dom0MemoryFreeAlert.ToggleAlertGroupEnablement();
         }
 
         public string SubText
         {
             get
             {
-                var subs = from AlertGroup g in new[] { cpuAlert, netAlert, diskAlert, memoryAlert, srAlert, physicalUtilisationAlert, dom0MemoryAlert }
+                var subs = from AlertGroup g in new[] { cpuAlert, netAlert, diskAlert, memoryAlert, srAlert, physicalUtilisationAlert, dom0MemoryAlert, dom0CPUUsageAlert, dom0MemoryFreeAlert }
                            where !string.IsNullOrEmpty(g.SubText)
                            select g.SubText;
 
@@ -220,10 +254,11 @@ namespace XenAdmin.SettingsPanels
             memoryAlert.Show(isHost);
             srAlert.Show(isSr);
             dom0MemoryAlert.Show(isHost);
+            dom0CPUUsageAlert.Show(isHost);
+            dom0MemoryFreeAlert.Show(isHost);
             // Always hidden since thin provisioning was removed, because that was the only case
             // in which the calculation worked, but retaining it in case we use it again
             physicalUtilisationAlert.Show(false);
-
             if (isHost)
             {
                 Host host = (Host)_XenObject;
@@ -287,6 +322,10 @@ namespace XenAdmin.SettingsPanels
 
                                 if (def != null && def.IsDom0MemoryUsage)
                                     dom0MemoryAlert.Populate(def);
+                                if (def != null && def.IsDom0CPUUsage)
+                                    dom0CPUUsageAlert.Populate(def);
+                                if (def != null && def.IsDom0MemoryFree)
+                                    dom0MemoryFreeAlert.Populate(def);
                             }
                         }
                     }
@@ -311,7 +350,7 @@ namespace XenAdmin.SettingsPanels
                 if (_XenObject is VM)
                     return cpuAlert.HasChanged || netAlert.HasChanged || diskAlert.HasChanged;
 
-                return cpuAlert.HasChanged || netAlert.HasChanged || memoryAlert.HasChanged || dom0MemoryAlert.HasChanged;
+                return cpuAlert.HasChanged || netAlert.HasChanged || memoryAlert.HasChanged || dom0MemoryAlert.HasChanged || dom0CPUUsageAlert.HasChanged || dom0MemoryFreeAlert.HasChanged;
             }
         }
 
@@ -381,13 +420,20 @@ namespace XenAdmin.SettingsPanels
             if (_XenObject is SR && physicalUtilisationAlert.Enabled)
                 perfmonDefinitions.Add(physicalUtilisationAlert.AlertDefinition);
 
+            if (_XenObject is Host && dom0CPUUsageAlert.Enabled)
+                perfmonDefinitions.Add(dom0CPUUsageAlert.AlertDefinition);
+
+            if (_XenObject is Host && dom0MemoryFreeAlert.Enabled)
+                perfmonDefinitions.Add(dom0MemoryFreeAlert.AlertDefinition);
+
             return new PerfmonDefinitionAction(_XenObject, perfmonDefinitions, true);
         }
 
         private void SetAlertIntervalEnablement()
         {
             bool enable = cpuAlert.Enabled || netAlert.Enabled || diskAlert.Enabled
-                          || memoryAlert.Enabled || srAlert.Enabled || dom0MemoryAlert.Enabled || physicalUtilisationAlert.Enabled;
+                          || memoryAlert.Enabled || srAlert.Enabled || dom0MemoryAlert.Enabled || physicalUtilisationAlert.Enabled
+                          || dom0CPUUsageAlert.Enabled || dom0MemoryFreeAlert.Enabled;
 
             nudAlertInterval.Enabled = enable;
             AlertIntervalMinutesLabel.Enabled = enable;

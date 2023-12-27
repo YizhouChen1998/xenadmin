@@ -1900,8 +1900,14 @@ Note that if RBAC is enabled, only alerts which you have privileges to dismiss w
 
 Note that if RBAC is enabled, only alerts which you have privileges to dismiss will be affected.</value>
   </data>
+  <data name="ALERT_DOM0_CPUUSAGE_SUB_TEXT" xml:space="preserve">
+    <value>When control domain cpu usage exceeds {0} for {1} min(s)</value>
+  </data>
   <data name="ALERT_DOM0_MEMORY_SUB_TEXT" xml:space="preserve">
     <value>When control domain memory usage exceeds {0} for {1} min(s)</value>
+  </data>
+  <data name="ALERT_DOM0_MEMORYFREE_SUB_TEXT" xml:space="preserve">
+    <value>When control domain memory free falls below {0} for {1} min(s)</value>
   </data>
   <data name="ALERT_EXPORT_ALL_OR_FILTERED" xml:space="preserve">
     <value>You have applied filters to the list of alerts. Do you want to export all alerts from every connected server, or only the alerts you have chosen to view?</value>

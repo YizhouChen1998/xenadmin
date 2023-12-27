@@ -68,15 +68,20 @@ namespace XenAdmin.Actions
             // dom0 Memory usage's has to be in the Dom0's other config.
             //
             var dom0_memory_usage = perfmonDefinitions.FirstOrDefault(d => d.IsDom0MemoryUsage);
-            if (dom0_memory_usage != null)
+            var dom0_cpu_usage = perfmonDefinitions.FirstOrDefault(d => d.IsDom0CPUUsage);
+            var dom0_memory_free = perfmonDefinitions.FirstOrDefault(d => d.IsDom0MemoryFree);
+            if (dom0_memory_usage != null || dom0_cpu_usage != null || dom0_memory_free != null)
             {
-                perfmonDefinitions.Remove(dom0_memory_usage);
-
                 var dom0Vm = theHost == null ? null : theHost.ControlDomainZero();
-                if (dom0Vm != null)
+                if (dom0Vm == null)
                 {
-                    var dom0PerfmonDefinitions = PerfmonDefinition.GetPerfmonDefinitions(dom0Vm).ToList();
+                    return;
+                }
+                var dom0PerfmonDefinitions = PerfmonDefinition.GetPerfmonDefinitions(dom0Vm).ToList();
 
+                if (dom0_memory_usage != null)
+                {
+                    perfmonDefinitions.Remove(dom0_memory_usage);
                     bool found = false;
                     for (int ii = 0; ii < dom0PerfmonDefinitions.Count; ii++)
                     {
@@ -88,15 +93,63 @@ namespace XenAdmin.Actions
                             break;
                         }
                     }
-
                     if (!found)
                     {
                         dom0PerfmonDefinitions.Add(dom0_memory_usage);
                     }
-
-                    string dom0PerfmonConfigXML = PerfmonDefinition.GetPerfmonDefinitionXML(dom0PerfmonDefinitions);
-                    Helpers.SetOtherConfig(Session, dom0Vm, PerfmonDefinition.PERFMON_KEY_NAME, dom0PerfmonConfigXML);
                 }
+                else
+                {
+                    dom0PerfmonDefinitions.RemoveAll(d => d.IsDom0MemoryUsage);
+                }
+                if (dom0_cpu_usage != null)
+                {
+                    perfmonDefinitions.Remove(dom0_cpu_usage);
+                    bool found = false;
+                    for (int ii = 0; ii < dom0PerfmonDefinitions.Count; ii++)
+                    {
+                        var pmd = dom0PerfmonDefinitions[ii];
+                        if (pmd != null && pmd.IsDom0CPUUsage)
+                        {
+                            dom0PerfmonDefinitions[ii] = dom0_cpu_usage;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found)
+                    {
+                        dom0PerfmonDefinitions.Add(dom0_cpu_usage);
+                    }
+                }
+                else
+                {
+                    dom0PerfmonDefinitions.RemoveAll(d => d.IsDom0CPUUsage);
+                }
+                if (dom0_memory_free != null)
+                {
+                    perfmonDefinitions.Remove(dom0_memory_free);
+                    bool found = false;
+                    for (int ii = 0; ii < dom0PerfmonDefinitions.Count; ii++)
+                    {
+                        var pmd = dom0PerfmonDefinitions[ii];
+                        if (pmd != null && pmd.IsDom0MemoryFree)
+                        {
+                            dom0PerfmonDefinitions[ii] = dom0_memory_free;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found)
+                    {
+                        dom0PerfmonDefinitions.Add(dom0_memory_free);
+                    }
+                }
+                else
+                {
+                    dom0PerfmonDefinitions.RemoveAll(d => d.IsDom0MemoryFree);
+                }
+                string dom0PerfmonConfigXML = PerfmonDefinition.GetPerfmonDefinitionXML(dom0PerfmonDefinitions);
+                Helpers.SetOtherConfig(Session, dom0Vm, PerfmonDefinition.PERFMON_KEY_NAME, dom0PerfmonConfigXML);
             }
             else
             {
@@ -105,7 +158,7 @@ namespace XenAdmin.Actions
                 {
                     var dom0PerfmonDefinitions = PerfmonDefinition.GetPerfmonDefinitions(dom0Vm).ToList();
 
-                    int found = dom0PerfmonDefinitions.RemoveAll(d => d.IsDom0MemoryUsage);
+                    int found = dom0PerfmonDefinitions.RemoveAll(d => d.IsDom0MemoryUsage || d.IsDom0CPUUsage || d.IsDom0MemoryFree);
                     if (found > 0)
                     {
                         string dom0PerfmonDefinitionsXml = PerfmonDefinition.GetPerfmonDefinitionXML(dom0PerfmonDefinitions);
